@@ -62,7 +62,7 @@ export default class App extends React.Component {
     console.log("there");
     Axios({
       method: 'post',
-      url: 'http://127.0.0.1:8000/silver',
+      url: 'https://metal-price-backend.herokuapp.com/silver',
       //headers: {"Content-Type": "application/json"},
       data: {
         year: this.state.year,
