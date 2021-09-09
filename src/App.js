@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {Line} from 'react-chartjs-2';
 import Axios from 'axios';
 import exportFromJSON from 'export-from-json' ;
+import { registerables } from 'chart.js';
 
 
 
@@ -12,12 +13,31 @@ const divStyle = {
 };
 
 
+function npointsMA(n, price){
+
+   let init_sum = 0;
+
+  for (var i = 0; i < n; i++){
+    init_sum += price[n];
+}
+
+  const movemean = [];
+  for (var i = n-1; i < price.length; i++){
+      movemean.push(init_sum/n)
+      init_sum -= price[i - n + 1]
+      init_sum += price[i + 1]
+  }
+  return movemean
+}
+
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      start: '',
-      end: '',
+      year: '',
+      from_dtime: '',
+      to_dtime: '',
       isLoaded: false,
       query_data: [],
       date: [],
@@ -42,11 +62,12 @@ export default class App extends React.Component {
     console.log("there");
     Axios({
       method: 'post',
-      url: 'http://localhost:3000',
+      url: 'http://127.0.0.1:8000/silver',
       //headers: {"Content-Type": "application/json"},
       data: {
-        start: this.state.start,
-        end: this.state.end
+        year: this.state.year,
+        from_dtime: this.state.from_dtime,
+        to_dtime: this.state.to_dtime,
       }}).then((res) => {
         console.log("here");
         this.setState({
@@ -59,7 +80,7 @@ export default class App extends React.Component {
         var y = [];
 
         for (var i in this.state.query_data){
-          x.push(this.state.query_data[i].datetime);
+          x.push(this.state.query_data[i].dtime);
           y.push(this.state.query_data[i].price);
         }
 
@@ -72,7 +93,12 @@ export default class App extends React.Component {
           labels: this.state.date,
           datasets: [{
             label: "Silver price chart",
-            data: this.state.price
+            data: this.state.price,
+            radius: 0,
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1,
+            fill: true,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)'
           }]
         };
 
@@ -134,18 +160,25 @@ export default class App extends React.Component {
           <label>
             start:
             <input
-              name="start"
+              name="year"
               type="text"
-              value={this.state.start}
+              value={this.state.year}
               onChange={this.handleChange} />
           </label>
-          <br />
+          <label>
+            start:
+            <input
+              name="from_dtime"
+              type="text"
+              value={this.state.from_dtime}
+              onChange={this.handleChange} />
+          </label>
           <label>
             end:
             <input
-              name="end"
+              name="to_dtime"
               type="text"
-              value={this.state.end}
+              value={this.state.to_dtime}
               onChange={this.handleChange} />
           </label>
           <input type="submit" value="Submit" />
