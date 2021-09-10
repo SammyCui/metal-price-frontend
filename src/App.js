@@ -158,7 +158,7 @@ export default class App extends React.Component {
       <div>
         <form onSubmit = {this.handleSubmit}>
           <label>
-            start:
+            Year:
             <input
               name="year"
               type="text"
@@ -166,7 +166,7 @@ export default class App extends React.Component {
               onChange={this.handleChange} />
           </label>
           <label>
-            start:
+            Start Date:
             <input
               name="from_dtime"
               type="text"
@@ -174,7 +174,7 @@ export default class App extends React.Component {
               onChange={this.handleChange} />
           </label>
           <label>
-            end:
+            End Date:
             <input
               name="to_dtime"
               type="text"
