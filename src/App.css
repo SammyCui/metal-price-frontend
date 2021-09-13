@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+.mb-3 {
+  width: 125px;
+}
+
+.settings {
+  position: relative;
+
+  left: 0.2rem;
+}
+
+.flexbox-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.linechart {
+  width:80%;
+  height: 400px
+}
