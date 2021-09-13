@@ -18,7 +18,7 @@ const divStyle = {
 
 
 function npointsMA(n, price){
-  let n_points = n * 24 * 60; 
+  let n_points = n; 
   let init_sum = 0;
 
   for (var i = 0; i < n_points; i++){
