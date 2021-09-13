@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import {Line} from 'react-chartjs-2';
 import Axios from 'axios';
 import exportFromJSON from 'export-from-json' ;
-import { registerables } from 'chart.js';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.css';
