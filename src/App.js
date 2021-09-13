@@ -26,7 +26,6 @@ function npointsMA(n, price){
     init_sum += price[i];
 }
 
-  console.log(init_sum);
   const movemean = [];
 
   for (var i = 0; i < n_points-1; i++){
@@ -55,13 +54,7 @@ export default class App extends React.Component {
       date: [],
       price: [],
       graph: '',
-      showdownload: '',
-      avg5: false,
-      avg10: false,
-      avg20: false,
-      avg60: false
-
-
+      showdownload: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -73,13 +66,11 @@ export default class App extends React.Component {
 
 
   handleChange(event) {
-    console.log(event.target.name, event.target.value);
     this.setState({[event.target.name]:event.target.value});
     }
 
   handleSubmit(event) {
     event.preventDefault();
-    console.log("there");
     Axios({
       method: 'post',
       url: 'https://metal-price-backend.herokuapp.com/silver',
@@ -95,7 +86,6 @@ export default class App extends React.Component {
           query_data: res.data
         })
 
- 
         var x = [];
         var y = [];
 
