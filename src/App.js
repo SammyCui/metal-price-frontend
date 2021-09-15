@@ -157,7 +157,6 @@ export default class App extends React.Component {
             }]
           },
           responsive: true,
-          maintainAspectRatio:false,
           layout: {
             padding: {
               top: 10,
