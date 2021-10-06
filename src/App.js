@@ -6,6 +6,7 @@ import exportFromJSON from 'export-from-json' ;
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.css';
+import { DropdownButton,Dropdown } from 'react-bootstrap';
 
 
 
@@ -53,12 +54,18 @@ export default class App extends React.Component {
       date: [],
       price: [],
       graph: '',
-      showdownload: ''
+      showdownload: '',
+      data_name: 'deag.csv',
+      file_list: [],
+      dropdown_name: 'Select a file'
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handledwnload = this.handledwnload.bind(this);
     this.Dwnloadbtn = this.Dwnloadbtn.bind(this);
+    this.handleGetFileList = this.handleGetFileList.bind(this);
+    this.handleFileSelect = this.handleFileSelect.bind(this);
+    
   }
 
 //handle change
@@ -70,39 +77,41 @@ export default class App extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    console.log({
+      from_date: this.state.from_dtime,
+      to_date: this.state.to_dtime,
+      data_name: this.state.data_name
+    })
     Axios({
       method: 'post',
-      url: 'https://metal-price-backend.herokuapp.com/silver',
+      url: `https://metal-price-backend.herokuapp.com/getdata/${this.state.data_name}`,
       //headers: {"Content-Type": "application/json"},
       data: {
-        year: this.state.year,
-        from_dtime: this.state.from_dtime,
-        to_dtime: this.state.to_dtime,
+        from_date: this.state.from_dtime,
+        to_date: this.state.to_dtime,
+        data_name: this.state.data_name
       }}).then((res) => {
-        console.log("here");
         this.setState({
           isLoaded: true,
-          query_data: res.data
         })
 
         var x = [];
         var y = [];
 
-        for (var i in this.state.query_data){
-          x.push(this.state.query_data[i].dtime);
-          y.push(this.state.query_data[i].price);
+        let json_parsed = JSON.parse(res.data)
+        for (let i in json_parsed){
+          x.push(json_parsed[i].Datetime);
+          y.push(json_parsed[i].price);
+
         }
 
-        this.setState({
-          date: x,
-          price: y
-        })
+        console.log(x)
 
         const data = {
-          labels: this.state.date,
+          labels: x,
           datasets: [{
             label: "Silver price",
-            data: this.state.price,
+            data: y,
             radius: 0,
             borderColor: 'rgb(75, 192, 192)',
             borderWidth: 1,
@@ -111,7 +120,7 @@ export default class App extends React.Component {
           },
           {
             label: "5 day average",
-            data: npointsMA(5,this.state.price),
+            data: npointsMA(5,y),
             radius: 0,
             borderColor: 'rgba(255, 51, 51, 0.8)',
             borderWidth: 1,
@@ -120,7 +129,7 @@ export default class App extends React.Component {
           },
           {
             label: "20 day average",
-            data: npointsMA(20,this.state.price),
+            data: npointsMA(20,y),
             radius: 0,
             borderColor: 'rgba(0, 128, 255, 0.8)',
             borderWidth: 1,
@@ -129,7 +138,7 @@ export default class App extends React.Component {
           },
           {
             label: "60 day average",
-            data: npointsMA(60,this.state.price),
+            data: npointsMA(60,y),
             radius: 0,
             borderColor: 'rgba(0, 128, 255, 0.8)',
             borderWidth: 1,
@@ -138,7 +147,7 @@ export default class App extends React.Component {
           },
           {
             label: "144 day average",
-            data: npointsMA(144,this.state.price),
+            data: npointsMA(144,y),
             radius: 0,
             borderColor: 'rgba(0, 128, 255, 0.8)',
             borderWidth: 1,
@@ -183,14 +192,33 @@ export default class App extends React.Component {
 
       });
       event.preventDefault();
-    }
+    };
+
+    handleGetFileList(event){
+      Axios({
+        method: 'get',
+        url: `https://metal-price-backend.herokuapp.com/get_file_list`,
+        }).then((res) => {
+          this.setState({
+            file_list: res.data
+          })});
+    };
+
+    handleFileSelect(event,evtkey){
+      this.setState({
+        dropdown_name: event.target.attributes.getNamedItem('title').value,
+        data_name: event.target.attributes.getNamedItem('title').value
+      });
+      
+    };
 
     handledwnload(event) {
       const data = this.state.query_data;
       const filename = `silver_price_${this.state.from_dtime}-${this.state.to_dtime}`;
       const exportType = 'csv'
       exportFromJSON({data, filename, exportType});
-    }
+    };
+
 
     Dwnloadbtn(){
       /*
@@ -203,7 +231,30 @@ export default class App extends React.Component {
       */
       //return <button onClick={this.handledwnload}> Download </button>;
       return <Button onClick={this.handledwnload} variant='outline-dark'>Download</Button>;
+    };
+
+    dropdown(){
+      return(
+        <div>
+          <DropdownButton id = 'file-list-dropdown-button' 
+          title={this.state.dropdown_name} 
+          onClick = {this.handleGetFileList}
+          onSelect = {(eventKey) => {
+            this.setState({
+              dropdown_name: eventKey,
+              data_name: eventKey
+            });
+          }}>
+            {this.state.file_list.map(data => (
+              <Dropdown.Item eventKey={data} key={data}>{data}</Dropdown.Item>
+            ))}
+          </DropdownButton>
+        </div>
+      )
     }
+
+
+
 
 
 
@@ -213,13 +264,6 @@ export default class App extends React.Component {
       <>
       <div class="flexbox-container">
         <Form onSubmit = {this.handleSubmit} className = 'settings'>
-          <Form.Group className="mb-3" >
-            <Form.Label>Year</Form.Label>
-              <Form.Control 
-                name="year" type="number" placeholder="YYYY"               
-                value={this.state.year}
-                onChange={this.handleChange}/>
-          </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>From Date</Form.Label>
               <Form.Control 
@@ -238,6 +282,9 @@ export default class App extends React.Component {
             Submit
           </Button>
         </Form>
+        <div>
+          {this.dropdown()}
+        </div>
         {this.state.graph}
         <div>
         {this.state.showdownload}
